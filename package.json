@@ -1,0 +1,40 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "migrate": "drizzle-kit generate:sqlite",
+    "studio": "drizzle-kit studio"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxtjs/tailwindcss": "^6.12.1",
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^18",
+    "autoprefixer": "^10.4.19",
+    "drizzle-kit": "^0.19.3",
+    "nuxt": "^3.5.1",
+    "postcss": "^8.4.40",
+    "shadcn-nuxt": "^0.10.4",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@tanstack/vue-table": "^8.19.3",
+    "@vueuse/core": "^10.11.0",
+    "better-sqlite3": "^9.6.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.27.0",
+    "lucide-vue-next": "^0.418.0",
+    "radix-vue": "^1.9.2",
+    "sqlite3": "^5.1.7",
+    "tailwind-merge": "^2.4.0",
+    "tailwindcss-animate": "^1.0.7"
+  }
+}

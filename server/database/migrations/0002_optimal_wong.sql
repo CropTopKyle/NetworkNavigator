@@ -1,0 +1,1 @@
+ALTER TABLE `switches` RENAME COLUMN `cabinet` TO `IDF`;
