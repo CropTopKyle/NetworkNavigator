@@ -1,10 +1,10 @@
 import { db } from '../database'
-import { switches } from '../database/schema'
+import { vlans } from '../database/schema'
 
 export default defineEventHandler(async () => {
   try {
-    const allSwitches = db.select().from(switches).all()
-    return allSwitches
+    const allVlans = db.select().from(vlans).all()
+    return allVlans
   } catch (error) {
     console.error('Error fetching switches:', error)
     throw createError({

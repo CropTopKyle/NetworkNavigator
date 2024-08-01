@@ -1,4 +1,5 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { InferModel, sql } from 'drizzle-orm'
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const switches = sqliteTable('switches', {
   id: integer('id').primaryKey(),
@@ -13,3 +14,5 @@ export const vlans = sqliteTable('vlans', {
   vlanId: integer('vlan_id').unique(),
   networkRange: text('network_range'),
 })
+
+export type switches = InferModel<typeof switches>
