@@ -14,6 +14,7 @@
       <NavigationMenuItem>
         <NavigationMenuLink
           href="/"
+          class="text-lg"
           :class="navigationMenuTriggerStyle()">
           Home
         </NavigationMenuLink>
@@ -21,6 +22,7 @@
       <NavigationMenuItem>
         <NavigationMenuLink
           href="/switches"
+          class="text-lg"
           :class="navigationMenuTriggerStyle()">
           Switch Lookup
         </NavigationMenuLink>
@@ -28,6 +30,7 @@
       <NavigationMenuItem>
         <NavigationMenuLink
           href="/vlans"
+          class="text-lg"
           :class="navigationMenuTriggerStyle()">
           VLAN Lookup
         </NavigationMenuLink>

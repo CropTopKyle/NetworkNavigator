@@ -117,6 +117,7 @@
         class="max-w-sm"
         placeholder="Quick Search..."
         :model-value="globalFilter"
+        @keydown.esc="globalFilter = ''"
         @update:model-value="handleGlobalFilter" />
     </div>
     <div class="rounded-md border">
