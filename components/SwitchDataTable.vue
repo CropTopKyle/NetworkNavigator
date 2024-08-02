@@ -1,18 +1,9 @@
 <script setup lang="ts">
-  import type {
-    ColumnDef,
-    ColumnFiltersState,
-    ExpandedState,
-    SortingState,
-    VisibilityState,
-  } from '@tanstack/vue-table'
+  import type { ColumnDef, ColumnFiltersState } from '@tanstack/vue-table'
   import {
     FlexRender,
     getCoreRowModel,
-    getExpandedRowModel,
     getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
     useVueTable,
   } from '@tanstack/vue-table'
   import { h, ref } from 'vue'
@@ -26,9 +17,9 @@
     TableHeader,
     TableRow,
   } from '@/components/ui/table'
-  import { valueUpdater } from '@/lib/utils'
 
   interface Switch {
+    id: number
     IDF: string
     hostname: string
     location: string
@@ -36,20 +27,27 @@
   }
 
   const data = ref<Switch[]>([])
+  const globalFilter = ref('')
 
   onMounted(async () => {
     try {
       console.log('Attempting to fetch switch data')
       const response = await fetch('/api/switches')
       if (!response.ok) throw new Error('Network response was not ok')
-      data.value = await response.json()
-      console.log(data)
+      const result: Switch[] = await response.json()
+      data.value = result
+      console.log('Fetched data:', data.value)
     } catch (error) {
       console.error('Failed to fetch switch data:', error)
     }
   })
 
   const columns: ColumnDef<Switch>[] = [
+    {
+      accessorKey: 'id',
+      header: 'ID',
+      cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('id')),
+    },
     {
       accessorKey: 'IDF',
       header: 'IDF',
@@ -58,8 +56,7 @@
     {
       accessorKey: 'hostname',
       header: 'Hostname',
-      cell: ({ row }) =>
-        h('div', { class: 'capitalize' }, row.getValue('hostname')),
+      cell: ({ row }) => h('div', { class: '' }, row.getValue('hostname')),
     },
     {
       accessorKey: 'location',
@@ -75,61 +72,52 @@
     },
   ]
 
-  const sorting = ref<SortingState>([])
   const columnFilters = ref<ColumnFiltersState>([])
-  const columnVisibility = ref<VisibilityState>({})
-  const rowSelection = ref({})
-  const expanded = ref<ExpandedState>({})
 
   const table = useVueTable({
     get data() {
       return data.value
     },
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getExpandedRowModel: getExpandedRowModel(),
-    onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
-    onColumnFiltersChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, columnFilters),
-    onColumnVisibilityChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, columnVisibility),
-    onRowSelectionChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, rowSelection),
-    onExpandedChange: (updaterOrValue) =>
-      valueUpdater(updaterOrValue, expanded),
     state: {
-      get sorting() {
-        return sorting.value
-      },
       get columnFilters() {
         return columnFilters.value
       },
-      get columnVisibility() {
-        return columnVisibility.value
-      },
-      get rowSelection() {
-        return rowSelection.value
-      },
-      get expanded() {
-        return expanded.value
+      get globalFilter() {
+        return globalFilter.value
       },
     },
+    onColumnFiltersChange: (updaterOrValue) => {
+      if (typeof updaterOrValue === 'function') {
+        columnFilters.value = updaterOrValue(columnFilters.value)
+      } else {
+        columnFilters.value = updaterOrValue
+      }
+    },
+    onGlobalFilterChange: (updaterOrValue) => {
+      if (typeof updaterOrValue === 'function') {
+        globalFilter.value = updaterOrValue(globalFilter.value)
+      } else {
+        globalFilter.value = updaterOrValue
+      }
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   })
+
+  const handleGlobalFilter = (value: string | number) => {
+    globalFilter.value = String(value)
+  }
 </script>
 
 <template>
   <div class="w-full">
     <div class="flex gap-2 items-center py-4">
-      <!-- <Input
+      <Input
         class="max-w-sm"
-        placeholder="Quick Search"
-        :model-value="table.getColumn('email')?.getFilterValue() as string"
-        @update:model-value="
-          table.getColumn('email')?.setFilterValue($event)
-        " /> -->
+        placeholder="Quick Search..."
+        :model-value="globalFilter"
+        @update:model-value="handleGlobalFilter" />
     </div>
     <div class="rounded-md border">
       <Table>
@@ -147,8 +135,21 @@
             </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
-          <template v-if="table.getRowModel().rows?.length"> </template>
+        <TableBody class="font-mono">
+          <template v-if="table.getRowModel().rows?.length">
+            <TableRow
+              v-for="row in table.getRowModel().rows"
+              :key="row.id"
+              :data-state="row.getIsSelected() && 'selected'">
+              <TableCell
+                v-for="cell in row.getVisibleCells()"
+                :key="cell.id">
+                <FlexRender
+                  :render="cell.column.columnDef.cell"
+                  :props="cell.getContext()" />
+              </TableCell>
+            </TableRow>
+          </template>
           <TableRow v-else>
             <TableCell
               :colspan="columns.length"
@@ -158,10 +159,6 @@
           </TableRow>
         </TableBody>
       </Table>
-    </div>
-
-    <div class="flex items-center justify-end space-x-2 py-4">
-      <div class="space-x-2"></div>
     </div>
   </div>
 </template>
